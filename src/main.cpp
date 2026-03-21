@@ -35,5 +35,14 @@ int main () {
         std::cout << "Message: " << entry.message << std::endl;
     }
 
+    std::vector<std::pair<std::string, int>> errorMessages = getTopErrorMessages(entries, 3);
+    std::cout << "Top error messages: \n";
+
+    int index = 1;
+    for (const auto& error : errorMessages) {
+        std::cout << index << ". " << error.first << " - " << error.second << std::endl;
+        ++index;
+    }
+
     return 0;
 }
