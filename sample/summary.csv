@@ -1,7 +1,4 @@
-section key, value
+section,key,value
 levels,ERROR,4
-levels,INFO,3
-levels,WARNING,2
 top_errors,Database connection failed,2
 top_errors,Authentication failed,1
-top_errors,Timeout while reading response,1
