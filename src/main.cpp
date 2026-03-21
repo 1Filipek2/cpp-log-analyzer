@@ -1,20 +1,18 @@
 #include <iostream>
+#include <vector>
 
 #include "parser.hpp"
 
 int main () {
-    std::string line = "2026-03-20 10:42:08 ERROR Database connection failed";
+    std::vector<LogEntry> entries = parseLogFile("../sample/sample.log");
 
-    auto result = parseLogLine(line);
+    std::cout << "Loaded valid entries:" << entries.size() << std::endl;
 
-    if (result.has_value()) {
-        std::cout << "Date: " << result->date << "\n";
-        std::cout << "Time: " << result->time << "\n";
-        std::cout << "Level: " << result->level << "\n";
-        std::cout << "Message: " << result->message << "\n";
-    } else {
-        std::cout << "Invalid log line \n";
+    for (const auto& entry : entries) {
+        std::cout << "Date: " << entry.date << std::endl;
+        std::cout << "Time: " << entry.time << std::endl;
+        std::cout << "Level: " << entry.level << std::endl;
+        std::cout << "Message: " << entry.message << std::endl;
     }
-
     return 0;
 }

@@ -1,5 +1,7 @@
 #include "parser.hpp"
 
+#include <fstream>
+#include <iostream>
 #include <sstream>
 
 std::optional<LogEntry> parseLogLine(const std::string& line) {
@@ -26,4 +28,32 @@ std::optional<LogEntry> parseLogLine(const std::string& line) {
     }
 
     return entry;
+}
+
+std::vector<LogEntry> parseLogFile(const std::string& filename) {
+    std::vector<LogEntry> entries;
+
+    std::ifstream file(filename);
+
+    if (!file) {
+        std::cerr << "Failed to open file: " << filename << "\n";
+        return entries;
+    }
+
+    std::string line;
+    int lineNumber = 0;
+
+    while (std::getline(file, line)) {
+        ++lineNumber;
+
+        auto parsedEntry = parseLogLine(line);
+
+        if (parsedEntry.has_value()) {
+            entries.push_back(*parsedEntry);
+        } else {
+            std::cerr << "Invalid log line at line " << lineNumber << "\n";
+        }
+    }
+
+    return entries;
 }
