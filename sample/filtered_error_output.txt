@@ -1,0 +1,10 @@
+Invalid log line at line 6
+Filtered level: ERROR
+Loaded valid entries: 4
+Level counts:
+ERROR: 4
+
+Top error messages:
+1. Database connection failed - 2
+2. Authentication failed - 1
+3. Timeout while reading response - 1
