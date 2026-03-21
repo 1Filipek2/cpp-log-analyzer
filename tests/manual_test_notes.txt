@@ -1,0 +1,91 @@
+Manual test notes for cpp-log-analyzer
+
+1. Basic run
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/sample.log
+
+Expected:
+- Loads valid entries from sample log
+- Reports invalid log line
+- Prints level counts
+- Prints top error messages
+
+2. Filter by ERROR level
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/sample.log --level ERROR
+
+Expected:
+- Reports invalid log line
+- Filters entries to ERROR only
+- Prints filtered level
+- Prints level counts for ERROR only
+- Prints top error messages for filtered entries
+
+3. Custom top error limit
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/sample.log --top-errors 5
+
+Expected:
+- Loads valid entries
+- Prints level counts
+- Prints up to 5 top error messages
+
+4. CSV export
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/sample.log --export sample/summary.csv
+
+Expected:
+- Loads valid entries
+- Prints summary to console
+- Creates or overwrites sample/summary.csv
+- CSV contains section,key,value header
+- CSV contains levels and top_errors rows
+
+5. Combined options
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/sample.log --level ERROR --top-errors 2 --export sample/summary.csv
+
+Expected:
+- Filters entries to ERROR only
+- Prints top 2 error messages
+- Exports filtered summary to CSV
+
+6. Missing input file argument
+Command:
+./cmake-build-debug/cpp_log_analyzer
+
+Expected:
+- Prints usage message
+- Exits with error code
+
+7. Missing log file
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/not_found.log
+
+Expected:
+- Prints file open error
+- Does not crash
+
+8. Missing value after --level
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/sample.log --level
+
+Expected:
+- Prints missing value error
+- Exits with error code
+
+9. Invalid value for --top-errors
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/sample.log --top-errors abc
+
+Expected:
+- Prints invalid value error
+- Exits with error code
+
+10. Unknown argument
+Command:
+./cmake-build-debug/cpp_log_analyzer sample/sample.log --banana
+
+Expected:
+- Prints unknown argument error
+- Exits with error code
