@@ -1,0 +1,5 @@
+section key, value
+levels,ERROR,2
+levels,INFO,2
+levels,WARNING,1
+top_errors,Database connection failed,2

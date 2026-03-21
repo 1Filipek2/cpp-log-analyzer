@@ -1,47 +1,41 @@
 #include <iostream>
+#include <map>
 #include <vector>
 
 #include "analyzer.hpp"
+#include "exporter.hpp"
 #include "parser.hpp"
 
-int main () {
+int main() {
     std::vector<LogEntry> entries = parseLogFile("../sample/sample.log");
     std::cout << "Loaded valid entries: " << entries.size() << std::endl;
 
     std::map<std::string, int> levelCounts = countLevels(entries);
-    std::cout << "Level counts: " << std::endl;
+    std::cout << "Level counts:" << std::endl;
 
     for (const auto& [level, count] : levelCounts) {
         std::cout << level << ": " << count << std::endl;
     }
 
+    std::cout << std::endl;
 
-    std::unordered_map<std::string, int> messageCounts = countMessageFrequency(entries);
-    std::cout << "Message counts: " << std::endl;
-
-    for (const auto& [message, count] : messageCounts) {
-        std::cout << message << ": " << count << std::endl;
-    }
-
-
-    std::vector<LogEntry> filteredEntries = filterByLevel(entries, "ERROR");
-    std::cout << "Filtered level: ERROR" << std::endl;
-    std::cout << "Matching entries: " << filteredEntries.size() << std::endl;
-
-    for (const auto& entry : filteredEntries) {
-        std::cout << "Date: " << entry.date << std::endl;
-        std::cout << "Time: " << entry.time << std::endl;
-        std::cout << "Level: " << entry.level << std::endl;
-        std::cout << "Message: " << entry.message << std::endl;
-    }
-
-    std::vector<std::pair<std::string, int>> errorMessages = getTopErrorMessages(entries, 3);
-    std::cout << "Top error messages: \n";
+    std::vector<std::pair<std::string, int>> topErrors = getTopErrorMessages(entries, 3);
+    std::cout << "Top error messages:" << std::endl;
 
     int index = 1;
-    for (const auto& error : errorMessages) {
-        std::cout << index << ". " << error.first << " - " << error.second << std::endl;
+    for (const auto& [message, count] : topErrors) {
+        std::cout << index << ". " << message << " - " << count << std::endl;
         ++index;
+    }
+
+    std::cout << std::endl;
+
+    bool exportOk = exportSummaryCsv("../sample/summary.csv", levelCounts, topErrors);
+
+    if (exportOk) {
+        std::cout << "Export successful: ../sample/summary.csv\n";
+    } else {
+        std::cout << "Export failed\n";
     }
 
     return 0;
