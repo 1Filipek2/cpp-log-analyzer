@@ -1,5 +1,7 @@
 section key, value
-levels,ERROR,2
-levels,INFO,2
-levels,WARNING,1
+levels,ERROR,4
+levels,INFO,3
+levels,WARNING,2
 top_errors,Database connection failed,2
+top_errors,Authentication failed,1
+top_errors,Timeout while reading response,1

@@ -14,7 +14,7 @@ bool exportSummaryCsv(const std::string& filename,
         return false;
     }
 
-    file << "section key, value\n";
+    file << "section,key,value\n";
 
     for (const auto& [level, count] : levelCounts) {
         file << "levels," << level << "," << count << std::endl;
