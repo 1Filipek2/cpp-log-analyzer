@@ -7,6 +7,33 @@
 #include "exporter.hpp"
 #include "parser.hpp"
 
+void printLevelCounts(const std::map<std::string, int>& levelCounts) {
+    std::cout << "Level counts: \n";
+
+    for (const auto& [level, count] : levelCounts) {
+        std::cout << level << ": " << count << "\n";
+    }
+
+    std::cout << "\n";
+}
+
+void printTopErrors(const std::vector<std::pair<std::string, int>>& topErrors) {
+    std::cout << "Top error messages: \n";
+
+    if (topErrors.empty()) {
+        std::cout << "No error messages found \n\n";
+        return;
+    }
+
+    int index = 1;
+    for (const auto& [message, count] : topErrors) {
+        std::cout << index << ". " << message << " - " << count << "\n";
+        ++index;
+    }
+
+    std::cout << "\n";
+}
+
 int main(int argc, char* argv[]) {
     auto options = parseArguments(argc, argv);
 
@@ -18,30 +45,16 @@ int main(int argc, char* argv[]) {
 
     if (options->levelFilter.has_value()) {
         entries = filterByLevel(entries, *options->levelFilter);
-        std::cout << "Filtered level: " << *options->levelFilter << std::endl;
+        std::cout << "Filtered level: " << *options->levelFilter << "\n";
     }
 
-    std::cout << "Loaded valid entries: " << entries.size() << std::endl;
+    std::cout << "Loaded valid entries: " << entries.size() << "\n\n";
 
     std::map<std::string, int> levelCounts = countLevels(entries);
-    std::cout << "Level counts:" << std::endl;
-
-    for (const auto& [level, count] : levelCounts) {
-        std::cout << level << ": " << count << std::endl;
-    }
-
-    std::cout << std::endl;
+    printLevelCounts(levelCounts);
 
     std::vector<std::pair<std::string, int>> topErrors = getTopErrorMessages(entries, options->topErrors);
-    std::cout << "Top error messages:" << std::endl;
-
-    int index = 1;
-    for (const auto& [message, count] : topErrors) {
-        std::cout << index << ". " << message << " - " << count << std::endl;
-        ++index;
-    }
-
-    std::cout << std::endl;
+    printTopErrors(topErrors);
 
     if (options->exportFile.has_value()) {
         bool exportOk = exportSummaryCsv(*options->exportFile, levelCounts, topErrors);
