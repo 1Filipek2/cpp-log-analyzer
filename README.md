@@ -89,14 +89,32 @@ Top error messages:
 ### CSV output example
 
 ```
-section,key,value
-levels,ERROR,4
-levels,INFO,3
-levels,WARNING,2
-top_errors,Database connection failed,2
-top_errors,Authentication failed,1
-top_errors,Timeout while reading response,1
+Level,Count
+ERROR,4
+INFO,3
+WARNING,2
+Error,Count
+Database connection failed,2
+Authentication failed,1
+Timeout while reading response,1
 ```
+
+## Automated testing
+
+This project includes automated unit tests using the Catch2 framework.
+
+- Tests cover log parsing, statistics analysis, CSV export, and edge cases (invalid/empty input, output validation).
+- All tests are located in the `tests/` directory.
+
+### How to run tests
+
+```sh
+cmake -S . -B build
+cmake --build build
+./build/tests
+```
+
+All tests should pass. The test suite is a good starting point for further development or refactoring.
 
 ## Project structure
 
@@ -114,11 +132,4 @@ top_errors,Timeout while reading response,1
 
 ## Tested scenarios
 
-- Basic run with sample log
-- Filtering by level
-- Top error limit
-- CSV export
-- Missing input file
-- Invalid CLI arguments
-- Malformed log line handling
-
+*Automated tests now cover all key scenarios. Manual test notes are kept for reference in `tests/manual_test_notes.txt`.*

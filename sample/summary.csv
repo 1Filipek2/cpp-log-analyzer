@@ -1,4 +1,5 @@
-section,key,value
-levels,ERROR,4
-top_errors,Database connection failed,2
-top_errors,Authentication failed,1
+Level,Count
+ERROR,4
+Error,Count
+Database connection failed,2
+Authentication failed,1
