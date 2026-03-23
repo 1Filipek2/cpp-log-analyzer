@@ -1,0 +1,32 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ "main", "master", "ci-github-actions" ]
+  pull_request:
+    branches: [ "main", "master", "ci-github-actions" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ make
+
+      - name: Create build directory
+        run: mkdir -p build
+
+      - name: Configure CMake
+        run: cmake -S . -B build
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure || (echo "No tests found or tests failed" && exit 1)
+
