@@ -22,8 +22,10 @@ std::optional<LogEntry> parseLogLine(const std::string& line) {
     if (!entry.message.empty() && entry.message[0] == ' ') {
         entry.message.erase(0, 1);
     }
-
-    if (entry.message.empty()) {
+    if (entry.message.empty() || entry.message.find_first_not_of(' ') == std::string::npos) {
+        return std::nullopt;
+    }
+    if (entry.level != "INFO" && entry.level != "WARN" && entry.level != "ERROR") {
         return std::nullopt;
     }
 
