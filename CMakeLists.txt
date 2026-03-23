@@ -15,7 +15,14 @@ add_executable(cpp_log_analyzer
 )
 
 
-find_package(Catch2 REQUIRED)
+include(FetchContent)
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG v2.13.10
+)
+FetchContent_MakeAvailable(Catch2)
+
 add_executable(tests
         tests/test_parser.cpp
         tests/test_analyzer.cpp
