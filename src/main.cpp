@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <memory>
 
 #include "analyzer.hpp"
 #include "cli.hpp"
@@ -43,21 +44,22 @@ int main(int argc, char* argv[]) {
 
     std::vector<LogEntry> entries = parseLogFile(options->inputFile);
 
+    auto analyzer = std::make_unique<LogAnalyzer>();
     if (options->levelFilter.has_value()) {
-        entries = filterByLevel(entries, *options->levelFilter);
+        entries = analyzer->filterByLevel(entries, *options->levelFilter);
         std::cout << "Filtered level: " << *options->levelFilter << "\n";
     }
-
     std::cout << "Loaded valid entries: " << entries.size() << "\n\n";
 
-    std::map<std::string, int> levelCounts = countLevels(entries);
+    std::map<std::string, int> levelCounts = analyzer->countLevels(entries);
     printLevelCounts(levelCounts);
 
-    std::vector<std::pair<std::string, int>> topErrors = getTopErrorMessages(entries, options->topErrors);
+    std::vector<std::pair<std::string, int>> topErrors = analyzer->getTopErrorMessages(entries, options->topErrors);
     printTopErrors(topErrors);
 
     if (options->exportFile.has_value()) {
-        bool exportOk = exportSummaryCsv(*options->exportFile, levelCounts, topErrors);
+        std::unique_ptr<Exporter> exporter = std::make_unique<CsvExporter>();
+        bool exportOk = exporter->exportSummary(*options->exportFile, levelCounts, topErrors);
 
         if (exportOk) {
             std::cout << "Export successful: " << *options->exportFile << "\n";
