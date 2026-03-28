@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 #include "parser.hpp"
+#include "log_entry.hpp"
 
 TEST_CASE("parseLogLine returns nullopt for empty line", "[parser]") {
     std::string line = "";
@@ -20,7 +21,7 @@ TEST_CASE("parseLogLine correctly parses valid log line", "[parser]") {
     REQUIRE(result.has_value());
     REQUIRE(result->date == "2024-06-01");
     REQUIRE(result->time == "12:00:00");
-    REQUIRE(result->level == "INFO");
+    REQUIRE(result->level == LogLevel::INFO);
     REQUIRE(result->message == "Application started");
 }
 
@@ -40,9 +41,9 @@ TEST_CASE("parseLogFile parses a valid log file", "[parser]") {
 
     auto entries = parseLogFile(filename);
     REQUIRE(entries.size() == 3);
-    REQUIRE(entries[0].level == "INFO");
-    REQUIRE(entries[1].level == "WARN");
-    REQUIRE(entries[2].level == "ERROR");
+    REQUIRE(entries[0].level == LogLevel::INFO);
+    REQUIRE(entries[1].level == LogLevel::WARN);
+    REQUIRE(entries[2].level == LogLevel::ERROR);
     std::remove(filename.c_str());
 }
 
