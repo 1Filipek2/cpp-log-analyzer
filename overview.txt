@@ -1,0 +1,171 @@
+cpp-log-analyzer: Kompletný prehľad a vysvetlenie projektu
+=========================================================
+
+1. Základné pojmy C++ použité v projekte
+----------------------------------------
+
+- **OOP (Object-Oriented Programming)**: Programovanie založené na objektoch a triedach. Trieda je šablóna, objekt je jej inštancia. OOP umožňuje dedičnosť, polymorfizmus a zapuzdrenie.
+- **Polymorfizmus**: Schopnosť volať metódy na objektoch rôznych typov cez spoločné rozhranie (napr. Exporter/CsvExporter).
+- **vector**: Kontajner z STL (Standard Template Library), dynamické pole, ktoré sa automaticky zväčšuje. Prístup cez index, push_back na pridanie prvku.
+- **map**: Asociatívny kontajner (STL), ukladá páry kľúč-hodnota, rýchle vyhľadávanie podľa kľúča.
+- **unordered_map**: Ako map, ale s rýchlejším (hashovacím) prístupom, poradie nie je zaručené.
+- **optional**: std::optional<T> reprezentuje hodnotu, ktorá môže alebo nemusí existovať (napr. výsledok parsovania).
+- **unique_ptr/shared_ptr**: Smart pointery na správu dynamickej pamäte. unique_ptr – výhradné vlastníctvo, shared_ptr – zdieľané vlastníctvo.
+
+2. Štruktúra projektu a súborov
+-------------------------------
+
+- **include/** – hlavičkové súbory (definície tried, funkcií, štruktúr)
+- **src/** – implementácie (telo funkcií, tried)
+- **tests/** – testy (Catch2)
+- **sample/** – ukážkové logy a výstupy
+
+3. Detailný popis súborov
+-------------------------
+
+### include/log_entry.hpp
+- Definuje štruktúru LogEntry (date, time, level, message) – reprezentuje jeden riadok logu.
+- Všetky polia sú std::string.
+- Pridaný enum class LogLevel a utility funkcie na konverziu.
+- LogEntry::level je teraz LogLevel.
+
+### include/cli.hpp
+- Definuje štruktúru CliOptions (inputFile, levelFilter, exportFile, topErrors).
+- Používa std::optional na voliteľné argumenty (napr. filterovanie podľa úrovne logu).
+- Funkcia parseArguments – spracuje argumenty príkazového riadku a vráti CliOptions.
+
+### include/parser.hpp
+- Deklaruje funkcie na parsovanie logov:
+  - parseLogLine: vráti std::optional<LogEntry> (alebo std::nullopt ak je riadok neplatný)
+  - parseLogFile: načíta celý súbor a vráti vector<LogEntry>
+
+### include/analyzer.hpp
+- Definuje triedu LogAnalyzer (OOP):
+  - countLevels: spočíta výskyt jednotlivých úrovní logov (map<string, int>)
+  - countMessageFrequency: spočíta výskyt správ (unordered_map<string, int>)
+  - filterByLevel: vyfiltruje logy podľa úrovne (vector<LogEntry>)
+  - getTopErrorMessages: vráti najčastejšie chybové správy (vector<pair<string, int>>)
+- Pôvodné funkcie pre spätnú kompatibilitu (volajú LogAnalyzer).
+
+### include/exporter.hpp
+- Definuje polymorfné rozhranie Exporter (abstraktná trieda s virtuálnou metódou exportSummary).
+- CsvExporter: konkrétna implementácia exportu do CSV.
+- Funkcia exportSummaryCsv: spätná kompatibilita (volá CsvExporter).
+
+### src/parser.cpp
+- Implementuje parsovanie logov:
+  - parseLogLine: rozdelí riadok na časti, validuje, vráti LogEntry alebo std::nullopt.
+  - parseLogFile: načíta súbor, každý riadok parsuje, neplatné riadky vypíše na stderr.
+  - Pri parsovaní sa načíta level ako string, konvertuje sa na LogLevel cez logLevelFromString.
+  - Ak je úroveň neznáma (UNKNOWN), riadok je neplatný.
+
+### src/analyzer.cpp
+- Implementuje LogAnalyzer:
+  - countLevels: prejde všetky logy, spočíta úrovne (INFO, WARN, ERROR).
+  - countMessageFrequency: spočíta výskyt správ.
+  - filterByLevel: vráti len logy s danou úrovňou.
+  - getTopErrorMessages: vráti najčastejšie chyby (zoradené podľa počtu).
+  - Všetky funkcie, ktoré pracujú s úrovňou logu, používajú LogLevel namiesto string.
+  - countLevels vracia map<LogLevel, int>.
+  - filterByLevel filtruje podľa LogLevel.
+
+### src/exporter.cpp
+- CsvExporter::exportSummary: exportuje štatistiky do CSV (úrovne, chyby).
+- exportSummaryCsv: spätná kompatibilita (volá CsvExporter).
+
+### src/main.cpp
+- Hlavný vstup programu.
+- Spracuje argumenty (parseArguments).
+- Načíta logy (parseLogFile).
+- Vytvorí LogAnalyzer (unique_ptr), analyzuje logy (počty, top chyby).
+- Vytvorí Exporter (unique_ptr na CsvExporter), exportuje výsledky.
+- Pri filtrovaní podľa úrovne sa používa logLevelFromString na prevod z argumentu.
+- Pri exporte sa map<LogLevel, int> konvertuje na map<string, int> cez logLevelToString.
+- Výpisy používajú logLevelToString.
+
+### tests/test_parser.cpp
+- Testuje parsovanie logov (parseLogLine, parseLogFile).
+- Overuje správne aj chybné vstupy.
+- Testy vytvárajú LogEntry s LogLevel namiesto string.
+- Kontroly používajú LogLevel enum.
+
+### tests/test_analyzer.cpp
+- Testuje analyzovanie logov (countLevels).
+- Overuje správne počítanie úrovní.
+
+### tests/test_exporter.cpp
+- Testuje export do CSV (exportSummaryCsv).
+- Overuje, že CSV obsahuje správne údaje.
+
+---
+
+**Aktualizácia marec 2026: enum class LogLevel a typová bezpečnosť**
+
+- Projekt používa enum class LogLevel namiesto stringov pre úroveň logu (level). To znamená, že LogEntry má teraz:
+  - LogLevel level; // namiesto std::string level;
+- Pridané utility funkcie:
+  - logLevelFromString – konverzia stringu na LogLevel (INFO, WARN, ERROR, UNKNOWN)
+  - logLevelToString – spätná konverzia LogLevel na string (pre export a výpis)
+- Výhody:
+  - Typová bezpečnosť: nemožno použiť neplatný string, všetky úrovne sú explicitne vymenované.
+  - Efektivita: porovnávanie enumov je rýchlejšie ako stringov.
+  - Prehľadnosť: všetky možné hodnoty sú na jednom mieste.
+
+**Zmeny v súboroch:**
+
+- include/log_entry.hpp:
+  - Pridaný enum class LogLevel a utility funkcie na konverziu.
+  - LogEntry::level je teraz LogLevel.
+- src/parser.cpp:
+  - Pri parsovaní sa načíta level ako string, konvertuje sa na LogLevel cez logLevelFromString.
+  - Ak je úroveň neznáma (UNKNOWN), riadok je neplatný.
+- include/analyzer.hpp, src/analyzer.cpp:
+  - Všetky funkcie, ktoré pracujú s úrovňou logu, používajú LogLevel namiesto string.
+  - countLevels vracia map<LogLevel, int>.
+  - filterByLevel filtruje podľa LogLevel.
+- src/main.cpp:
+  - Pri filtrovaní podľa úrovne sa používa logLevelFromString na prevod z argumentu.
+  - Pri exporte sa map<LogLevel, int> konvertuje na map<string, int> cez logLevelToString.
+  - Výpisy používajú logLevelToString.
+- tests/test_parser.cpp, tests/test_analyzer.cpp:
+  - Testy vytvárajú LogEntry s LogLevel namiesto string.
+  - Kontroly používajú LogLevel enum.
+
+**Vysvetlenie enum class LogLevel:**
+
+- enum class LogLevel { INFO, WARN, ERROR, UNKNOWN };
+  - enum class je typovo bezpečný výpočet (na rozdiel od obyčajného enumu sa hodnoty nemiešajú s inými číslami).
+  - UNKNOWN sa používa na detekciu neznámych alebo neplatných úrovní.
+- Funkcia logLevelFromString:
+  - Prijíma string (napr. z logu alebo argumentu) a vráti príslušný LogLevel.
+  - Ak string nezodpovedá žiadnej známej úrovni, vráti LogLevel::UNKNOWN.
+- Funkcia logLevelToString:
+  - Prijíma LogLevel a vráti string reprezentáciu (napr. pre export do CSV alebo výpis na konzolu).
+
+**Príklad použitia:**
+
+```cpp
+LogEntry entry;
+entry.level = logLevelFromString("ERROR");
+if (entry.level == LogLevel::ERROR) { /* ... */ }
+std::string levelStr = logLevelToString(entry.level);
+```
+
+**Celkový tok programu je rovnaký, ale všetka práca s úrovňou logu je teraz typovo bezpečná a efektívna.**
+
+4. Prepojenie a tok programu
+----------------------------
+
+1. main.cpp načíta argumenty a logy.
+2. Pomocou LogAnalyzer analyzuje dáta (počty, top chyby).
+3. Výsledky vypíše na konzolu a/alebo exportuje cez Exporter (polymorfizmus, OOP, smart pointery).
+4. Testy overujú správnosť parsovania, analýzy aj exportu.
+
+5. Zhrnutie a odporúčania
+-------------------------
+
+- Projekt je moderný, využíva OOP, polymorfizmus, smart pointery a STL kontajnery.
+- Kód je rozšíriteľný (stačí pridať nový Exporter, ďalšie metódy do LogAnalyzer, atď.).
+- Vhodné na učenie: každý súbor má jasnú zodpovednosť, OOP a STL sú použité v praxi.
+
+Ak chceš detailnejšie vysvetlenie konkrétnej časti alebo rozšírenie, daj vedieť!

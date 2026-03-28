@@ -1,8 +1,9 @@
 #include "analyzer.hpp"
 #include <algorithm>
+#include "log_entry.hpp"
 
-std::map<std::string, int> LogAnalyzer::countLevels(const std::vector<LogEntry>& entries) const {
-    std::map<std::string, int> counts;
+std::map<LogLevel, int> LogAnalyzer::countLevels(const std::vector<LogEntry>& entries) const {
+    std::map<LogLevel, int> counts;
     for (const auto& entry : entries) {
         counts[entry.level]++;
     }
@@ -17,7 +18,7 @@ std::unordered_map<std::string, int> LogAnalyzer::countMessageFrequency(const st
     return messageCounts;
 }
 
-std::vector<LogEntry> LogAnalyzer::filterByLevel(const std::vector<LogEntry>& entries, const std::string& level) const {
+std::vector<LogEntry> LogAnalyzer::filterByLevel(const std::vector<LogEntry>& entries, LogLevel level) const {
     std::vector<LogEntry> filteredEntries;
     for (const auto& entry : entries) {
         if (entry.level == level) {
@@ -28,7 +29,7 @@ std::vector<LogEntry> LogAnalyzer::filterByLevel(const std::vector<LogEntry>& en
 }
 
 std::vector<std::pair<std::string, int>> LogAnalyzer::getTopErrorMessages(const std::vector<LogEntry>& entries, std::size_t topN) const {
-    std::vector<LogEntry> errorEntries = filterByLevel(entries, "ERROR");
+    std::vector<LogEntry> errorEntries = filterByLevel(entries, LogLevel::ERROR);
     std::unordered_map<std::string, int> messageCounts = countMessageFrequency(errorEntries);
     std::vector<std::pair<std::string, int>> topErrors;
     for (const auto& pair : messageCounts) {
@@ -44,7 +45,7 @@ std::vector<std::pair<std::string, int>> LogAnalyzer::getTopErrorMessages(const 
     return topErrors;
 }
 
-std::map<std::string, int> countLevels(const std::vector<LogEntry>& entries) {
+std::map<LogLevel, int> countLevels(const std::vector<LogEntry>& entries) {
     LogAnalyzer analyzer;
     return analyzer.countLevels(entries);
 }
@@ -54,7 +55,7 @@ std::unordered_map<std::string, int> countMessageFrequency(const std::vector<Log
     return analyzer.countMessageFrequency(entries);
 }
 
-std::vector<LogEntry> filterByLevel(const std::vector<LogEntry>& entries, const std::string& level) {
+std::vector<LogEntry> filterByLevel(const std::vector<LogEntry>& entries, LogLevel level) {
     LogAnalyzer analyzer;
     return analyzer.filterByLevel(entries, level);
 }

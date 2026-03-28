@@ -8,11 +8,11 @@
 #include "exporter.hpp"
 #include "parser.hpp"
 
-void printLevelCounts(const std::map<std::string, int>& levelCounts) {
+void printLevelCounts(const std::map<LogLevel, int>& levelCounts) {
     std::cout << "Level counts: \n";
 
     for (const auto& [level, count] : levelCounts) {
-        std::cout << level << ": " << count << "\n";
+        std::cout << logLevelToString(level) << ": " << count << "\n";
     }
 
     std::cout << "\n";
@@ -46,12 +46,13 @@ int main(int argc, char* argv[]) {
 
     auto analyzer = std::make_unique<LogAnalyzer>();
     if (options->levelFilter.has_value()) {
-        entries = analyzer->filterByLevel(entries, *options->levelFilter);
+        LogLevel filterLevel = logLevelFromString(*options->levelFilter);
+        entries = analyzer->filterByLevel(entries, filterLevel);
         std::cout << "Filtered level: " << *options->levelFilter << "\n";
     }
     std::cout << "Loaded valid entries: " << entries.size() << "\n\n";
 
-    std::map<std::string, int> levelCounts = analyzer->countLevels(entries);
+    std::map<LogLevel, int> levelCounts = analyzer->countLevels(entries);
     printLevelCounts(levelCounts);
 
     std::vector<std::pair<std::string, int>> topErrors = analyzer->getTopErrorMessages(entries, options->topErrors);
@@ -59,7 +60,12 @@ int main(int argc, char* argv[]) {
 
     if (options->exportFile.has_value()) {
         std::unique_ptr<Exporter> exporter = std::make_unique<CsvExporter>();
-        bool exportOk = exporter->exportSummary(*options->exportFile, levelCounts, topErrors);
+
+        std::map<std::string, int> levelCountsStr;
+        for (const auto& [level, count] : levelCounts) {
+            levelCountsStr[logLevelToString(level)] = count;
+        }
+        bool exportOk = exporter->exportSummary(*options->exportFile, levelCountsStr, topErrors);
 
         if (exportOk) {
             std::cout << "Export successful: " << *options->exportFile << "\n";
