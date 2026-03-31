@@ -2,6 +2,7 @@
 #include <catch2/catch.hpp>
 #include "parser.hpp"
 #include "log_entry.hpp"
+#include "parser_fatal_exception.hpp"
 
 TEST_CASE("parseLogLine returns nullopt for empty line", "[parser]") {
     std::string line = "";
@@ -47,10 +48,9 @@ TEST_CASE("parseLogFile parses a valid log file", "[parser]") {
     std::remove(filename.c_str());
 }
 
-TEST_CASE("parseLogFile returns empty vector for non-existent file", "[parser]") {
+TEST_CASE("parseLogFile throws ParserFatalException for non-existent file", "[parser]") {
     std::string filename = "non_existent_log.txt";
-    auto entries = parseLogFile(filename);
-    REQUIRE(entries.empty());
+    REQUIRE_THROWS_AS(parseLogFile(filename), ParserFatalException);
 }
 
 TEST_CASE("parseLogFile returns empty vector for empty file", "[parser]") {

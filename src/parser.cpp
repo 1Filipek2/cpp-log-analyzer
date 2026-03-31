@@ -1,5 +1,6 @@
 #include "parser.hpp"
 #include "log_entry.hpp"
+#include "parser_fatal_exception.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -37,8 +38,7 @@ std::vector<LogEntry> parseLogFile(const std::string& filename) {
     std::vector<LogEntry> entries;
     std::ifstream file(filename);
     if (!file) {
-        std::cerr << "Failed to open file: " << filename << "\n";
-        return entries;
+        throw ParserFatalException("Failed to open file: " + filename);
     }
     std::string line;
     int lineNumber = 0;
