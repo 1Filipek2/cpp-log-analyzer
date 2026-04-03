@@ -6,7 +6,7 @@
 TEST_CASE("exportSummaryCSV should create a valid CSV file", "[exporter]") {
     std::map<std::string, int> levelCounts {
         {"INFO", 10},
-        {"WARN", 5},
+        {"WARNING", 5},
         {"ERROR", 3}
     };
     std::vector<std::pair<std::string, int>> topErrors {
@@ -23,7 +23,7 @@ TEST_CASE("exportSummaryCSV should create a valid CSV file", "[exporter]") {
     inFile.close();
     std::string expectedHeader = "Level,Count\n";
     std::string expectedInfo = "INFO,10\n";
-    std::string expectedWarn = "WARN,5\n";
+    std::string expectedWarn = "WARNING,5\n";
     std::string expectedError = "ERROR,3\n";
     std::string expectedErrorHeader = "Error,Count\n";
     std::string expectedNullPointer = "NullPointerException,2\n";

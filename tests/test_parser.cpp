@@ -25,6 +25,16 @@ TEST_CASE("parseLogLine correctly parses valid log line", "[parser]") {
     REQUIRE(result->message == "Application started");
 }
 
+TEST_CASE("parseLogLine accepts WARNING and legacy WARN levels", "[parser]") {
+    auto warning = parseLogLine("2024-06-01 12:00:00 WARNING Disk usage high");
+    auto warn = parseLogLine("2024-06-01 12:01:00 WARN Low disk space");
+
+    REQUIRE(warning.has_value());
+    REQUIRE(warning->level == LogLevel::WARN);
+    REQUIRE(warn.has_value());
+    REQUIRE(warn->level == LogLevel::WARN);
+}
+
 TEST_CASE("parseLogLine returns nullopt for invalid log line", "[parser]") {
     std::string line = "Invalid log line without proper format";
     auto result = parseLogLine(line);

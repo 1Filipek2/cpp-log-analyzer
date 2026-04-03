@@ -11,6 +11,7 @@ A small CLI utility for parsing application logs, counting log levels, filtering
 - Show top error messages
 - Export summary results to CSV
 - Build with CMake
+- Accept both `WARNING` and legacy `WARN` in input logs and CLI filters
 
 ## Log format
 

@@ -11,7 +11,7 @@ enum class LogLevel {
 template<typename StringType>
 LogLevel logLevelFromString(const StringType& str) {
     if (str == "INFO") return LogLevel::INFO;
-    if (str == "WARN") return LogLevel::WARN;
+    if (str == "WARN" || str == "WARNING") return LogLevel::WARN;
     if (str == "ERROR") return LogLevel::ERROR;
     return LogLevel::UNKNOWN;
 }
@@ -19,7 +19,7 @@ LogLevel logLevelFromString(const StringType& str) {
 inline std::string logLevelToString(LogLevel level) {
     switch (level) {
         case LogLevel::INFO: return "INFO";
-        case LogLevel::WARN: return "WARN";
+        case LogLevel::WARN: return "WARNING";
         case LogLevel::ERROR: return "ERROR";
         default: return "UNKNOWN";
     }
