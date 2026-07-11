@@ -6,7 +6,7 @@ A small CLI utility for parsing application logs, counting log levels, filtering
 
 - Parse simple text log files
 - Report malformed lines with line numbers
-- Count log levels (`INFO`, `WARNING`, `ERROR`)
+- Count log levels (`INFO`, `WARNING`, `ERROR`), bucketing unrecognized levels (e.g. `DEBUG`, `FATAL`, `TRACE`) as `UNKNOWN`
 - Filter entries by level
 - Show top error messages
 - Export summary results to CSV
@@ -29,7 +29,10 @@ Each line is parsed as:
 [date] [time] [level] [message...]
 ```
 
-Malformed lines are skipped and reported.
+Lines that cannot be parsed structurally (missing date, time, level, or message) are
+skipped and reported as malformed, with their line number. Lines that are structurally
+valid but carry an unrecognized level (such as DEBUG, FATAL, or TRACE) are kept and
+counted under the UNKNOWN bucket rather than discarded.
 
 ## Build
 
@@ -43,43 +46,44 @@ cmake --build build
 ### Basic run
 
 ```sh
-./build/cpp_log_analyzer sample/sample.log
+./build/loganalyzer_app sample/sample.log
 ```
 
 ### Filter by level
 
 ```sh
-./build/cpp_log_analyzer sample/sample.log --level ERROR
+./build/loganalyzer_app sample/sample.log --level ERROR
 ```
 
 ### Limit top error messages
 
 ```sh
-./build/cpp_log_analyzer sample/sample.log --top-errors 2
+./build/loganalyzer_app sample/sample.log --top-errors 2
 ```
 
 ### Export summary to CSV
 
 ```sh
-./build/cpp_log_analyzer sample/sample.log --export sample/summary.csv
+./build/loganalyzer_app sample/sample.log --export sample/summary.csv
 ```
 
 ### Combined example
 
 ```sh
-./build/cpp_log_analyzer sample/sample.log --level ERROR --top-errors 2 --export sample/summary.csv
+./build/loganalyzer_app sample/sample.log --level ERROR --top-errors 2 --export sample/summary.csv
 ```
 
 ## Example output
 
 ```
-Invalid log line at line 6
-Loaded valid entries: 9
+Malformed log line at line 6
+Loaded valid entries: 12
 
 Level counts:
 ERROR: 4
 INFO: 3
 WARNING: 2
+UNKNOWN: 3
 
 Top error messages:
 1. Database connection failed - 2
@@ -112,7 +116,7 @@ This project includes automated unit tests using the Catch2 framework.
 ```sh
 cmake -S . -B build
 cmake --build build
-./build/tests
+ctest --test-dir build --output-on-failure
 ```
 
 All tests should pass. The test suite is a good starting point for further development or refactoring.
@@ -122,7 +126,7 @@ All tests should pass. The test suite is a good starting point for further devel
 - `include/`   headers
 - `src/`       implementation
 - `sample/`    sample log and output files
-- `tests/`     manual test notes
+- `tests/`     Catch2 unit tests
 
 ## Design overview
 
@@ -132,5 +136,7 @@ All tests should pass. The test suite is a good starting point for further devel
 - `cli` handles command-line arguments
 
 ## Tested scenarios
+Key scenarios (parsing, level counting, CSV export, and edge cases) are covered by the
+automated Catch2 test suite in `tests/`. Run them with `ctest --test-dir build`.
 
 *Automated tests now cover all key scenarios. Manual test notes are kept for reference in `tests/manual_test_notes.txt`.*

@@ -27,9 +27,6 @@ std::optional<LogEntry> parseLogLine(const std::string& line) {
     if (entry.message.empty() || entry.message.find_first_not_of(' ') == std::string::npos) {
         return std::nullopt;
     }
-    if (entry.level == LogLevel::UNKNOWN) {
-        return std::nullopt;
-    }
     return entry;
 }
 
@@ -48,7 +45,7 @@ std::vector<LogEntry> parseLogFile(const std::string& filename) {
         if (parsedEntry.has_value()) {
             entries.push_back(*parsedEntry);
         } else {
-            std::cerr << "Invalid log line at line " << lineNumber << "\n";
+            std::cerr << "Malformed log line at line " << lineNumber << "\n";
         }
     }
 
