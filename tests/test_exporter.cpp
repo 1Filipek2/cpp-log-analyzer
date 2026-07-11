@@ -53,3 +53,26 @@ TEST_CASE("exportSummaryCSV should handle empty data", "[exporter]") {
     REQUIRE(content.find("Error,Count") != std::string::npos);
     std::remove(filename.c_str());
 }
+
+TEST_CASE("exportSummaryCSV escapes commas, quotes and both", "[exporter]") {
+    std::map<std::string, int> levelCounts;
+    std::vector<std::pair<std::string, int>> topErrors {
+        {"Timeout, retry failed", 3},
+        {"he said \"hi\"", 2},               
+        {"oops \"bad\", value", 1}           
+    };
+    std::string filename = "test_escape_summary.csv";
+
+    REQUIRE(exportSummaryCsv(filename, levelCounts, topErrors));
+
+    std::ifstream inFile(filename);
+    REQUIRE(inFile.is_open());
+    std::string content((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+    inFile.close();
+
+    REQUIRE(content.find("\"Timeout, retry failed\",3") != std::string::npos);
+    REQUIRE(content.find("\"he said \"\"hi\"\"\",2") != std::string::npos);
+    REQUIRE(content.find("\"oops \"\"bad\"\", value\",1") != std::string::npos);
+
+    std::remove(filename.c_str());
+}
