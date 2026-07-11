@@ -37,12 +37,6 @@ TEST_CASE("parseLogLine accepts WARNING and legacy WARN levels", "[parser]") {
     REQUIRE(warn->level == LogLevel::WARN);
 }
 
-TEST_CASE("parseLogLine returns nullopt for invalid log line", "[parser]") {
-    std::string line = "Invalid log line without proper format";
-    auto result = parseLogLine(line);
-    REQUIRE_FALSE(result.has_value());
-}
-
 TEST_CASE("parseLogFile parses a valid log file", "[parser]") {
     std::string filename = "test_log.txt";
     std::ofstream outFile(filename);
@@ -73,4 +67,17 @@ TEST_CASE("parseLogFile returns empty vector for empty file", "[parser]") {
     auto entries = parseLogFile(filename);
     REQUIRE(entries.empty());
     std::remove(filename.c_str());
+}
+
+TEST_CASE("parseLogLine keeps unrecognized level as UNKNOWN", "[parser]") {
+    auto result = parseLogLine("2026-07-11 10:22:00 DEBUG Cache miss on key user:42");
+    REQUIRE(result.has_value());
+    REQUIRE(result->level == LogLevel::UNKNOWN);
+    REQUIRE(result->message == "Cache miss on key user:42");
+}
+
+TEST_CASE("parseLogLine still rejects structurally broken lines", "[parser]") {
+    REQUIRE_FALSE(parseLogLine("bad malformed line").has_value());
+    REQUIRE_FALSE(parseLogLine("").has_value());
+    REQUIRE_FALSE(parseLogLine("2024-06-01 12:00:00 INFO").has_value());
 }
