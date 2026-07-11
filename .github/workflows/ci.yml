@@ -1,33 +1,22 @@
-name: C++ CI
-
+name: CI
 on:
   push:
-    branches: [ "main", "master", "ci-github-actions" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main", "master", "ci-github-actions" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake g++ make
-
-
-      - name: Create build directory
-        run: mkdir -p build
-
-      - name: Configure CMake
-        run: cmake -S . -B build
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 
       - name: Build
-        run: cmake --build build
+        run: cmake --build build -j
 
-      - name: Run tests
-        run: |
-          cd build
-          ctest --output-on-failure || (echo "No tests found or tests failed" && exit 1)
-
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure --no-tests=error

@@ -1,5 +1,7 @@
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <fstream>
+#include <cstdio>
+#include <string>
 #include "parser.hpp"
 #include "log_entry.hpp"
 
