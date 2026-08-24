@@ -7,4 +7,4 @@
 #include "log_entry.hpp"
 
 std::optional<LogEntry> parseLogLine(const std::string& line);
-std::vector<LogEntry> parseLogFile(const std::string& filename);
+std::optional<std::vector<LogEntry>> parseLogFile(const std::string& filename);

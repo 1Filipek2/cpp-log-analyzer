@@ -5,8 +5,10 @@
 #include <iostream>
 #include <sstream>
 
-std::optional<LogEntry> parseLogLine(const std::string& line) {
-    if (line.empty()) {
+std::optional<LogEntry> parseLogLine(const std::string& line) 
+{
+    if (line.empty()) 
+    {
         return std::nullopt;
     }
 
@@ -15,36 +17,47 @@ std::optional<LogEntry> parseLogLine(const std::string& line) {
     LogEntry entry;
     std::string levelStr;
 
-    if (!(ss >> entry.date >> entry.time >> levelStr)) {
+    if (!(ss >> entry.date >> entry.time >> levelStr)) 
+    {
         return std::nullopt;
     }
     entry.level = logLevelFromString(levelStr);
 
     std::getline(ss, entry.message);
-    if (!entry.message.empty() && entry.message[0] == ' ') {
+    if (!entry.message.empty() && entry.message[0] == ' ') 
+    {
         entry.message.erase(0, 1);
     }
-    if (entry.message.empty() || entry.message.find_first_not_of(' ') == std::string::npos) {
+    if (entry.message.empty() || entry.message.find_first_not_of(' ') == std::string::npos) 
+    {
         return std::nullopt;
     }
     return entry;
 }
 
-std::vector<LogEntry> parseLogFile(const std::string& filename) {
+std::optional<std::vector<LogEntry>> parseLogFile(const std::string& filename) 
+{
     std::vector<LogEntry> entries;
     std::ifstream file(filename);
-    if (!file) {
+    if (!file) 
+    {
         std::cerr << "Failed to open file: " << filename << "\n";
-        return entries;
+        return std::nullopt;
     }
+
     std::string line;
     int lineNumber = 0;
-    while (std::getline(file, line)) {
+
+    while (std::getline(file, line)) 
+    {
         ++lineNumber;
         auto parsedEntry = parseLogLine(line);
-        if (parsedEntry.has_value()) {
+
+        if (parsedEntry.has_value()) 
+        {
             entries.push_back(*parsedEntry);
-        } else {
+        } else 
+        {
             std::cerr << "Malformed log line at line " << lineNumber << "\n";
         }
     }
