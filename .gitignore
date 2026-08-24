@@ -3,4 +3,5 @@ build/
 .idea/
 *.o
 *.out
+/out.csv
 overview.txt

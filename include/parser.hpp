@@ -6,5 +6,5 @@
 
 #include "log_entry.hpp"
 
-std::optional<LogEntry> parseLogLine(const std::string& line);
-std::optional<std::vector<LogEntry>> parseLogFile(const std::string& filename);
+[[nodiscard]] std::optional<LogEntry> parseLogLine(const std::string& line);
+[[nodiscard]] std::optional<std::vector<LogEntry>> parseLogFile(const std::string& filename);

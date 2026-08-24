@@ -41,9 +41,9 @@ std::optional<CliOptions> parseArguments(int argc, char* argv[])
             std::string_view valueArg = argv[++i];
             
             int value;
-            auto res = std::from_chars(valueArg.data(), valueArg.data() + valueArg.size(), value);
 
-            if (res.ec != std::errc{} || res.ptr != valueArg.data() + valueArg.size())
+            if (auto res = std::from_chars(valueArg.data(), valueArg.data() + valueArg.size(), value);
+                res.ec != std::errc{} || res.ptr != valueArg.data() + valueArg.size())
             {
                 std::cerr << "Invalid value for --top-errors \n";
                 return std::nullopt;

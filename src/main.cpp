@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         std::map<std::string, int> levelCountsStr;
         for (const auto& [level, count] : levelCounts) 
         {
-            levelCountsStr[logLevelToString(level)] = count;
+            levelCountsStr[std::string(logLevelToString(level))] = count;
         }
         bool exportOk = exporter->exportSummary(*options->exportFile, levelCountsStr, topErrors);
 
