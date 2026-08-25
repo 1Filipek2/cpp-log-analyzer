@@ -1,9 +1,9 @@
 #include "cli.hpp"
 
+#include <charconv>
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <charconv>
 #include <system_error>
 
 std::optional<CliOptions> parseArguments(int argc, char* argv[]) 
@@ -39,8 +39,7 @@ std::optional<CliOptions> parseArguments(int argc, char* argv[])
             }
 
             std::string_view valueArg = argv[++i];
-            
-            int value;
+            int value = 0;
 
             if (auto res = std::from_chars(valueArg.data(), valueArg.data() + valueArg.size(), value);
                 res.ec != std::errc{} || res.ptr != valueArg.data() + valueArg.size())
@@ -67,7 +66,7 @@ std::optional<CliOptions> parseArguments(int argc, char* argv[])
         }
         else 
         {
-            std::cerr << "Unknown argument: " << arg << std::endl;
+            std::cerr << "Unknown argument: " << arg << '\n';
             return std::nullopt;
         }
     }

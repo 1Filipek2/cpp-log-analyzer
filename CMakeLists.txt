@@ -9,6 +9,8 @@ add_library(loganalyzer_core STATIC
         src/parser.cpp
         src/analyzer.cpp
         src/exporter.cpp
+        src/app.cpp
+        src/cli.cpp
 )
 
 target_include_directories(loganalyzer_core PUBLIC include)
@@ -18,7 +20,7 @@ else()
     target_compile_options(loganalyzer_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(loganalyzer_app src/main.cpp src/cli.cpp)
+add_executable(loganalyzer_app src/main.cpp)
 target_link_libraries(loganalyzer_app PRIVATE loganalyzer_core)
 
 include(FetchContent)
