@@ -36,6 +36,7 @@ add_executable(tests
         tests/test_parser.cpp
         tests/test_analyzer.cpp
         tests/test_exporter.cpp
+        tests/test_cli.cpp
 )
 target_link_libraries(tests PRIVATE loganalyzer_core Catch2::Catch2WithMain)
 
